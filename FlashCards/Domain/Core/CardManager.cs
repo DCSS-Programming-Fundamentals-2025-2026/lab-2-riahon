@@ -1,14 +1,20 @@
 using System;
+
 namespace FlashCards.Domain.Core
 {
     public class CardManager
     {
         public FlashCard[] FlashCards = new FlashCard[200];
 
-        public void CreateCard()
+        public void CreateCard(string question, string answer)
         {
+            if (string.IsNullOrWhiteSpace(question) || string.IsNullOrWhiteSpace(answer))
+                throw new ArgumentException("Питання та відповідь не можуть бути порожніми.");
+
             int idC = 0;
-            for (int i = 0; i < 200; i++)
+            int emptyIndex = -1;
+
+            for (int i = 0; i < FlashCards.Length; i++)
             {
                 if (FlashCards[i] != null)
                 {
@@ -17,67 +23,58 @@ namespace FlashCards.Domain.Core
                         idC = FlashCards[i].Id;
                     }
                 }
+                else if (emptyIndex == -1)
+                {
+                    emptyIndex = i; 
+                }
             }
+
+            if (emptyIndex == -1)
+                throw new InvalidOperationException("Масив карток переповнений.");
+
             idC++;
-            Console.WriteLine("Введіть питання для картки: ");
-            string inputQ = Console.ReadLine();
-            Console.WriteLine("Введіть правильний варіант відповіді:");
-            string inputA = Console.ReadLine();
-            
-            FlashCard Card = new FlashCard(id:idC, question:inputQ, answer:inputA);
-            FlashCards[idC] = Card;
+            FlashCard card = new FlashCard(id: idC, question: question, answer: answer);
+            FlashCards[emptyIndex] = card;
         }
-
-        public void DeleteCard()
+        public void DeleteCard(int id)
         {
-            Console.WriteLine("Введіть id картки, яку хочете видалити:");
-            int idC = Convert.ToInt32(Console.ReadLine());
-
             for (int i = 0; i < FlashCards.Length; i++)
             {
-                if (FlashCards[i] != null && FlashCards[i].Id == idC)
+                if (FlashCards[i] != null && FlashCards[i].Id == id)
                 {
-                    FlashCards[i] = null;
-                    Console.WriteLine("Картку видалено.");
+                    for (int j = i; j < FlashCards.Length - 1; j++)
+                    {
+                        FlashCards[j] = FlashCards[j + 1];
+                    }
+                    FlashCards[FlashCards.Length - 1] = null;
                     return;
                 }
             }
 
-            Console.WriteLine("Картку не знайдено.");
+            throw new ArgumentException($"Картку з ID {id} не знайдено.");
         }
 
-        public void ChangeCard()
+        public void ChangeCard(int id, int choice, string newValue)
         {
-            Console.WriteLine("Введіть id картки, яку хочете змінити:");
-            int idC = Convert.ToInt32(Console.ReadLine());
+            if (string.IsNullOrWhiteSpace(newValue))
+                throw new ArgumentException("Нове значення не може бути порожнім.");
 
             for (int i = 0; i < FlashCards.Length; i++)
             {
-                if (FlashCards[i] != null && FlashCards[i].Id == idC)
+                if (FlashCards[i] != null && FlashCards[i].Id == id)
                 {
-                    Console.WriteLine("Що ви хочете змінити?");
-                    Console.WriteLine("1. Question");
-                    Console.WriteLine("2. Answer");
-
-                    int choice = Convert.ToInt32(Console.ReadLine());
-
                     if (choice == 1)
-                    {
-                        Console.WriteLine("Введіть нове питання:");
-                        FlashCards[i].Question = Console.ReadLine();
-                    }
+                        FlashCards[i].Question = newValue;
                     else if (choice == 2)
-                    {
-                        Console.WriteLine("Введіть нову відповідь:");
-                        FlashCards[i].Answer = Console.ReadLine();
-                    }
+                        FlashCards[i].Answer = newValue;
+                    else
+                        throw new ArgumentException("Невірний вибір поля для зміни.");
 
-                    Console.WriteLine("Картку змінено.");
                     return;
                 }
             }
 
-            Console.WriteLine("Картку не знайдено.");
+            throw new ArgumentException($"Картку з ID {id} не знайдено.");
         }
 
         public FlashCard FindById(int id)
@@ -112,6 +109,5 @@ namespace FlashCards.Domain.Core
 
             return null;
         }
-
     }
 }
