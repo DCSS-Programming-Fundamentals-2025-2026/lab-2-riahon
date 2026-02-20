@@ -24,6 +24,8 @@ namespace FlashCards.App
                 Console.WriteLine("4. Видалити картку");
                 Console.WriteLine("5. Почати тестування");
                 Console.WriteLine("6. Знайти картку за id");
+                Console.WriteLine("7. Статистика");
+                Console.WriteLine("8. Сортувати картки");
                 Console.WriteLine("0. Вихід");
                 Console.Write("\nВаш вибір: ");
 
@@ -55,6 +57,14 @@ namespace FlashCards.App
                             break;
                         case "6":
                             _runner.FindById();
+                            Pause();
+                            break;
+                        case "7":
+                            _runner.ShowStats();
+                            Pause();
+                            break;
+                        case "8":
+                            _runner.SortCards();
                             Pause();
                             break;
                         case "0":

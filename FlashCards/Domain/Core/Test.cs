@@ -1,5 +1,6 @@
 using System;
 using FlashCards.Domain.Interfaces;
+
 namespace FlashCards.Domain.Core
 {
     
