@@ -7,7 +7,6 @@ namespace FlashCards.App
     public class DemoRunner
     {
         private CardManager _manager = new CardManager();
-    
 
         public void CreateCard()
         {
@@ -85,15 +84,19 @@ namespace FlashCards.App
         {
             Console.WriteLine("\nСписок карток");
 
-            var it = _manager.FlashCards.GetEnumerator();
+            if (_manager.FlashCards.Count == 0)
+            {
+                Console.WriteLine("Список порожній.");
+                return;
+            }
 
+            var it = _manager.FlashCards.GetEnumerator();
             while (it.MoveNext())
             {
                 FlashCard card = (FlashCard)it.Current;
-                Console.WriteLine($"ID: {card.Id} | {card.Question} | {card.Answer}");
+                Console.WriteLine($"ID: {card.Id} | Питання: {card.Question} | Відповідь: {card.Answer}");
             }
         }
-
 
         public void RunQuiz()
         {
@@ -101,7 +104,6 @@ namespace FlashCards.App
             Console.WriteLine("ТЕСТУВАННЯ");
 
             Test test = new Test(_manager.FlashCards.ToArray());
-
 
             Console.Write("Скільки питань ви хочете? ");
             if (int.TryParse(Console.ReadLine(), out int count))
@@ -139,40 +141,35 @@ namespace FlashCards.App
             }
         }
 
-
         public void ShowStats()
         {
             Console.WriteLine($"Кількість карток: {_manager.FlashCards.Count}");
         }
 
-
-
         public void SortCards()
         {
             FlashCard[] cards = _manager.FlashCards.ToArray();
-
             Console.WriteLine("Оберіть сортування:");
             Console.WriteLine("1. За питанням (A-Z)");
             Console.WriteLine("2. За ID");
-
             string choice = Console.ReadLine();
 
             if (choice == "1")
-                Array.Sort(cards); 
+                Array.Sort(cards);
             else if (choice == "2")
-                Array.Sort(cards, new FlashCardIdComparer()); 
+                Array.Sort(cards, new FlashCardIdComparer());
             else
             {
                 Console.WriteLine("Невірний вибір.");
                 return;
             }
 
+            Console.WriteLine("\nВідсортований список:");
             foreach (var card in cards)
-            Console.WriteLine($"ID: {card.Id} | {card.Question} | {card.Answer}");
+            {
+                if (card != null)
+                    Console.WriteLine($"ID: {card.Id} | Питання: {card.Question} | Відповідь: {card.Answer}");
+            }
         }
     }
 }
-
-
-    
-    

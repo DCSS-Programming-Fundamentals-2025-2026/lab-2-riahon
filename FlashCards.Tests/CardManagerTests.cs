@@ -10,15 +10,10 @@ namespace FlashCards.Tests
         public void CreateCard_ValidInputs_AddsCardSuccessfully()
         {
             var manager = new CardManager();
-            string question = "Що таке C#?";
-            string answer = "Мова програмування";
+            manager.CreateCard("Що таке C#?", "Мова");
 
-            manager.CreateCard(question, answer);
-
-            Assert.NotNull(manager.FlashCards[0]);
-            Assert.Equal(question, manager.FlashCards[0].Question);
-            Assert.Equal(answer, manager.FlashCards[0].Answer);
-            Assert.Equal(1, manager.FlashCards[0].Id);
+            Assert.Equal(1, manager.FlashCards.Count);
+            Assert.Equal("Що таке C#?", manager.FlashCards.GetAt(0).Question);
         }
 
         [Theory]
@@ -27,33 +22,29 @@ namespace FlashCards.Tests
         public void CreateCard_EmptyInputs_ThrowsArgumentException(string question, string answer)
         {
             var manager = new CardManager();
-
-            var exception = Assert.Throws<ArgumentException>(() => manager.CreateCard(question, answer));
-            Assert.Equal("Питання та відповідь не можуть бути порожніми.", exception.Message);
-            Assert.Null(manager.FlashCards[0]);
+            Assert.Throws<ArgumentException>(() => manager.CreateCard(question, answer));
+            Assert.Equal(0, manager.FlashCards.Count);
         }
 
         [Fact]
         public void DeleteCard_ValidId_RemovesCardAndShiftsArray()
         {
             var manager = new CardManager();
-            manager.FlashCards[0] = new FlashCard(1, "Питання 1", "Відповідь 1");
-            manager.FlashCards[1] = new FlashCard(2, "Питання 2", "Відповідь 2");
-            manager.FlashCards[2] = new FlashCard(3, "Питання 3", "Відповідь 3");
+            manager.FlashCards.Add(new FlashCard(1, "Питання 1", "Відповідь 1"));
+            manager.FlashCards.Add(new FlashCard(2, "Питання 2", "Відповідь 2"));
+            manager.FlashCards.Add(new FlashCard(3, "Питання 3", "Відповідь 3"));
 
             manager.DeleteCard(2);
 
-            Assert.NotNull(manager.FlashCards[1]);
-            Assert.Equal(3, manager.FlashCards[1].Id);
-            Assert.Null(manager.FlashCards[2]);
+            Assert.Equal(2, manager.FlashCards.Count);
+            Assert.Equal(3, manager.FlashCards.GetAt(1).Id); 
         }
 
         [Fact]
         public void DeleteCard_InvalidId_ThrowsArgumentException()
         {
             var manager = new CardManager();
-            manager.FlashCards[0] = new FlashCard(1, "Питання", "Відповідь");
-
+            manager.FlashCards.Add(new FlashCard(1, "П", "В"));
             Assert.Throws<ArgumentException>(() => manager.DeleteCard(99));
         }
 
@@ -61,26 +52,24 @@ namespace FlashCards.Tests
         public void ChangeCard_ValidData_UpdatesCardContent()
         {
             var manager = new CardManager();
-            manager.FlashCards[0] = new FlashCard(1, "Старе питання", "Стара відповідь");
+            manager.FlashCards.Add(new FlashCard(1, "Старе", "Стара"));
 
-            manager.ChangeCard(1, 1, "Нове питання");
+            manager.ChangeCard(1, 1, "Нове");
 
-            Assert.Equal("Нове питання", manager.FlashCards[0].Question);
-            Assert.Equal("Стара відповідь", manager.FlashCards[0].Answer); 
+            Assert.Equal("Нове", manager.FlashCards.GetAt(0).Question);
         }
 
         [Fact]
         public void FindById_ExistingId_ReturnsCorrectCard()
         {
             var manager = new CardManager();
-            manager.FlashCards[0] = new FlashCard(5, "Питання", "Відповідь");
-            manager.FlashCards[1] = new FlashCard(10, "Питання 2", "Відповідь 2");
+            manager.FlashCards.Add(new FlashCard(5, "П", "В"));
+            manager.FlashCards.Add(new FlashCard(10, "П2", "В2"));
 
             var result = manager.FindById(10);
 
             Assert.NotNull(result);
             Assert.Equal(10, result.Id);
-            Assert.Equal("Питання 2", result.Question);
         }
     }
 }

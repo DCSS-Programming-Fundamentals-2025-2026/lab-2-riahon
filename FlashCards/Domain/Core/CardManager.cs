@@ -5,14 +5,19 @@ namespace FlashCards.Domain.Core
 {
     public class CardManager
     {
-        public FlashCardCollection FlashCards = new FlashCardCollection(100);
+        public FlashCardCollection FlashCards = new FlashCardCollection(200);
 
         public void CreateCard(string question, string answer)
         {
             if (string.IsNullOrWhiteSpace(question) || string.IsNullOrWhiteSpace(answer))
                 throw new ArgumentException("Питання та відповідь не можуть бути порожніми.");
 
-            int newId = FlashCards.Count + 1;
+            int newId = 1;
+            for (int i = 0; i < FlashCards.Count; i++)
+            {
+                if (FlashCards.GetAt(i).Id >= newId)
+                    newId = FlashCards.GetAt(i).Id + 1;
+            }
 
             FlashCard card = new FlashCard(newId, question, answer);
             FlashCards.Add(card);
@@ -28,10 +33,8 @@ namespace FlashCards.Domain.Core
                     return;
                 }
             }
-
-            throw new ArgumentException("Картку не знайдено.");
+            throw new ArgumentException($"Картку з ID {id} не знайдено.");
         }
-
 
         public void ChangeCard(int id, int choice, string newValue)
         {
@@ -40,7 +43,7 @@ namespace FlashCards.Domain.Core
 
             for (int i = 0; i < FlashCards.Count; i++)
             {
-                if (FlashCards.GetAt(i)!= null && FlashCards.GetAt(i).Id == id)
+                if (FlashCards.GetAt(i).Id == id)
                 {
                     if (choice == 1)
                         FlashCards.GetAt(i).Question = newValue;
@@ -52,7 +55,6 @@ namespace FlashCards.Domain.Core
                     return;
                 }
             }
-
             throw new ArgumentException($"Картку з ID {id} не знайдено.");
         }
 
@@ -61,11 +63,9 @@ namespace FlashCards.Domain.Core
             for (int i = 0; i < FlashCards.Count; i++)
             {
                 if (FlashCards.GetAt(i).Id == id)
-                return FlashCards.GetAt(i);
+                    return FlashCards.GetAt(i);
             }
-
             return null;
         }
-
     }
 }
