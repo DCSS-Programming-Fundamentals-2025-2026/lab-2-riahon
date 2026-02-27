@@ -1,33 +1,37 @@
 ﻿using System;
-using Xunit;
+using NUnit.Framework;
 using FlashCards.Domain.Core;
 
 namespace FlashCards.Tests
 {
+    [TestFixture]
     public class CardManagerTests
     {
-        [Fact]
+        [Test]
         public void CreateCard_ValidInputs_AddsCardSuccessfully()
         {
             var manager = new CardManager();
             manager.CreateCard("Що таке C#?", "Мова");
 
-            Assert.Equal(1, manager.FlashCards.Count);
-            Assert.Equal("Що таке C#?", manager.FlashCards.GetAt(0).Question);
+            // Сучасний синтаксис Assert.That
+            Assert.That(manager.FlashCards.Count, Is.EqualTo(1));
+            Assert.That(manager.FlashCards.GetAt(0).Question, Is.EqualTo("Що таке C#?"));
         }
 
-        [Theory]
-        [InlineData("", "Відповідь")]
-        [InlineData("Питання", "  ")]
-        public void CreateCard_EmptyInputs_ThrowsArgumentException(string question, string answer)
+        [TestCase("", "Відповідь")]
+        [TestCase("Питання", "  ")]
+        [TestCase(null, "Відповідь")]
+        public void CreateCard_InvalidInputs_ThrowsArgumentException(string question, string answer)
         {
             var manager = new CardManager();
-            Assert.Throws<ArgumentException>(() => manager.CreateCard(question, answer));
-            Assert.Equal(0, manager.FlashCards.Count);
+
+            // Перевірка на помилку через Assert.That
+            Assert.That(() => manager.CreateCard(question, answer), Throws.ArgumentException);
+            Assert.That(manager.FlashCards.Count, Is.EqualTo(0));
         }
 
-        [Fact]
-        public void DeleteCard_ValidId_RemovesCardAndShiftsArray()
+        [Test]
+        public void DeleteCard_ValidId_RemovesCardAndShiftsCollection()
         {
             var manager = new CardManager();
             manager.FlashCards.Add(new FlashCard(1, "Питання 1", "Відповідь 1"));
@@ -36,30 +40,31 @@ namespace FlashCards.Tests
 
             manager.DeleteCard(2);
 
-            Assert.Equal(2, manager.FlashCards.Count);
-            Assert.Equal(3, manager.FlashCards.GetAt(1).Id); 
+            Assert.That(manager.FlashCards.Count, Is.EqualTo(2));
+            Assert.That(manager.FlashCards.GetAt(1).Id, Is.EqualTo(3));
         }
 
-        [Fact]
+        [Test]
         public void DeleteCard_InvalidId_ThrowsArgumentException()
         {
             var manager = new CardManager();
             manager.FlashCards.Add(new FlashCard(1, "П", "В"));
-            Assert.Throws<ArgumentException>(() => manager.DeleteCard(99));
+
+            Assert.That(() => manager.DeleteCard(99), Throws.ArgumentException);
         }
 
-        [Fact]
+        [Test]
         public void ChangeCard_ValidData_UpdatesCardContent()
         {
             var manager = new CardManager();
-            manager.FlashCards.Add(new FlashCard(1, "Старе", "Стара"));
+            manager.FlashCards.Add(new FlashCard(1, "Старе питання", "Стара відповідь"));
 
-            manager.ChangeCard(1, 1, "Нове");
+            manager.ChangeCard(1, 1, "Нове питання");
 
-            Assert.Equal("Нове", manager.FlashCards.GetAt(0).Question);
+            Assert.That(manager.FlashCards.GetAt(0).Question, Is.EqualTo("Нове питання"));
         }
 
-        [Fact]
+        [Test]
         public void FindById_ExistingId_ReturnsCorrectCard()
         {
             var manager = new CardManager();
@@ -68,8 +73,8 @@ namespace FlashCards.Tests
 
             var result = manager.FindById(10);
 
-            Assert.NotNull(result);
-            Assert.Equal(10, result.Id);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Id, Is.EqualTo(10));
         }
     }
 }
